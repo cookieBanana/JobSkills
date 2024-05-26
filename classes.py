@@ -67,7 +67,7 @@ class Controller_db:
 
     def get_all_table(self, table_name):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT * from '"+table_name+"'")
+        cursor.execute('SELECT * from "'+table_name+'"')
         result = cursor.fetchall()
         print(result)
         data = result
@@ -77,7 +77,7 @@ class Controller_db:
         return data
 
     def get_row_by_id(self, table_name, id):
-        postgreSQL_select_Query = "select * from '"+ table_name +"' where '"+table_name+"_id"+"' = "+id
+        postgreSQL_select_Query = 'select * from "'+ table_name +'" where "'+table_name+"_id"+"' = "+id
         cursor = self.conn.cursor()
         cursor.execute(postgreSQL_select_Query)
         result = cursor.fetchall()
@@ -86,6 +86,45 @@ class Controller_db:
         self.conn.commit()  # реальное выполнение команд sql1
         cursor.close()  # закрываем курсор
         self.conn.close()  # закрываем подключение
+        return data
+
+
+        # DELETE FROM table_name WHERE table_name_id = value;
+    def del_str_SQL(self, table_name, value):
+        postgreSQL_select_Query = 'DELETE FROM "'+ table_name +'" where "'+table_name+'_id"'+' = '+value
+        cursor = self.conn.cursor()
+        cursor.execute(postgreSQL_select_Query)
+        self.conn.commit()  # реальное выполнение команд sql1
+        cursor.close()  # закрываем курсор
+        self.conn.close()  # закрываем подключени
+
+
+        # UPDATE table_name SET column = value WHERE table_name_id = id;
+    def change_value_SQL(self, table_name, column, table_name_id, id, value):
+        postgreSQL_select_Query = 'UPDATE "'+ table_name +'" SET "'+column+'" = '+value+' WHERE "'+table_name_id+'" =' + id
+        cursor = self.conn.cursor()
+        cursor.execute(postgreSQL_select_Query)
+        self.conn.commit()  # реальное выполнение команд sql1
+        cursor.close()  # закрываем курсор
+        self.conn.close()  # закрываем подключени
+
+
+        # SELECT * FROM table_name WHERE column1 = value1 AND column2 = value2 AND ...;
+    def get_rows_by_values(self, table_name, column_array, value_array):
+        postgreSQL_select_Query = 'SELECT * FROM "'+ table_name+'" WHERE '
+        for index, col_name in enumerate(column_array):
+            if index < len(column_array) - 1:
+                postgreSQL_select_Query += ' "'+col_name + '" = ' + value_array[index] + ' AND '
+            elif index == len(column_array) - 1:
+                postgreSQL_select_Query += '"'+col_name + '" = ' + value_array[index] + ';'
+        cursor = self.conn.cursor()
+        cursor.execute(postgreSQL_select_Query)
+        result = cursor.fetchall()
+        print(result)
+        data = result
+        self.conn.commit()  # реальное выполнение команд sql1
+        cursor.close()  # закрываем курсор
+        self.conn.close()  # закрываем подключени
         return data
 
 class Vacancy:
