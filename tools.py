@@ -148,4 +148,14 @@ def put_vac_in_prof(vac, prof):
 def get_prof_by_syn(syn):
     pass
 
+def del_str_SQL(table_name,table_name_id,value):
+    #DELETE FROM table_name WHERE table_name_id = value;
+    pass
 
+def change_value_SQL(table_name,column,table_name_id, id, value):
+    #UPDATE table_name SET column = value WHERE table_name_id = id;
+    pass
+
+def get_rows_by_values(table_name, column_array, value_array):
+    #SELECT * FROM table_name WHERE column1 = value1 AND column2 = value2 AND ...;
+    pass
