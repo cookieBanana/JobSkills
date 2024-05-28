@@ -7,11 +7,11 @@ from pprint import pprint
 import pandas as pd
 import pymorphy3
 import nltk
-import  classes
+import  classes_date
 
 pd.options.mode.chained_assignment = None
 
-controller_db = classes.Controller_db()
+controller_db = classes_date.Controller_db()
 
 # станки заполненные
 
@@ -79,10 +79,10 @@ def add_syn_prof_inDB(prof, syn):
 
 # 5.создай пустую функцию получть_профессии_и_синонимы_из_стандарта принимает ссылку на файл
 def get_prof_and_syn_from_standart(file_path):
-    df = pd.read_csv(file_path).head(2)
+    df = pd.read_csv(file_path)
     prof = df[["preferredLabel", "altLabels"]]
-    prof["preferredLabel"]= prof["preferredLabel"].apply(translate_word)
-    prof["altLabels"] = prof["altLabels"].str.split('\n').apply(translate_text)
+    # prof["preferredLabel"]= prof["preferredLabel"].apply(translate_word)
+    # prof["altLabels"] = prof["altLabels"].str.split('\n').apply(translate_text)
     return prof["preferredLabel"].tolist(), prof["altLabels"].tolist()
 
 

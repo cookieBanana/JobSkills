@@ -1,7 +1,8 @@
 # тут описаны все заводы
 # классы чаще всего используются main, но могут быть использованы и в других местах
-import classes
+import classes_date
 import tools
+import  multiprocessing
 
 # фабрика
 
@@ -19,7 +20,7 @@ def find_skills_in_text(text, skills):
 def add_standart_to_DB(prof, syns):
     # trans_prof = tools.translate_word(prof)
     # trans_syns = tools.translate_text(syns)
-    prof_obj = classes.Profession(1, prof[1], )
+    prof_obj = classes_date.Profession(1, prof[1], )
     tools.add_prof_inDB(prof_obj)
 
     # for x in range(len(prof)):
@@ -31,7 +32,7 @@ def add_standart_to_DB(prof, syns):
 
 
 # 7.создать функцию которая принимает ссылку на файл. Получает список всех профессий и их синонимов(5) Сохраняет их в бд (6)
-def save_in_DB(file_path):
+def prof_csv_to_bd(file_path):
     prof, syns = tools.get_prof_and_syn_from_standart(file_path)
     print("save_in_DB", prof )
     add_standart_to_DB(prof, syns)
@@ -67,3 +68,61 @@ def update_skills_DB():
             new_skills = tools.search_new_skills(vac_skills, find_skills)
             for skill in new_skills:
                 tools.add_skill_in_vac(skill, vac)
+
+
+#перевести данные
+def f(i,data_for_worker_item,return_dict):
+    rus_data_for_worker_item = []
+    local_i = i*20
+    for x in data_for_worker_item:
+        trans_prof = tools.translate_word(x[0][0])
+        trans_syns = tools.translate_text(x[1])[0].split("\n")
+        db_context = classes_date.Controller_db()
+        print(trans_syns)
+        db_context.create_row("Professions", ["Professions_id", "Professions_name", "Profession_syn"],[local_i, trans_prof, trans_syns])
+
+        return_dict[local_i] = [trans_prof]
+        local_i+=1
+
+
+
+# создаст df, потом разрежит его на 1000 частей
+# каждую часть даст процессу, процесс положит в бд
+def esco_to_array(file):
+    names, alt_names = tools.get_prof_and_syn_from_standart(file)
+    data_for_worker = []
+    # разделить на кусочки размером 20 names
+    print(len(names))
+    data_for_worker_item = []
+    local_i = 0
+    for i in range(len(names)):
+        local_i +=1
+        data_for_worker_item.append([[names[i]], [alt_names[i]]])
+        if (local_i % 20 == 0 and local_i > 0) or (i == len(names) -1):
+            data_for_worker.append(data_for_worker_item)
+            data_for_worker_item = []
+            local_i = 0
+
+    # q = multiprocessing.Queue()
+    # pool = multiprocessing.Pool() #use all available cores, otherwise specify the number you want as an argument
+    # for x in range(1):
+    #    pool.apply_async(f, args=(data_for_worker[x], 1))
+    # pool.close()
+    # pool.join()
+
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+    jobs = []
+    for i in range(len(data_for_worker)):
+        p = multiprocessing.Process(target=f, args=(i,data_for_worker[i],return_dict))
+        jobs.append(p)
+        p.start()
+
+    for proc in jobs:
+        proc.join()
+    result = return_dict.values()
+    for item in result:
+        print("ITEM", item)
+    print("ITs rus_data_for_worker_item")
+
+

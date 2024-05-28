@@ -24,9 +24,9 @@ def main():
     # получить синонимы
     path = "P:\\diploma_a\\esco_dataset\\ESCO dataset - v1.1.2 - classification - en - csv\\occupations_en.csv"
     print("test")
-    fabrics.save_in_DB(path)
+    fabrics.esco_to_array(path)
 
-
-main()
+if __name__ == '__main__':
+    main()
 
 

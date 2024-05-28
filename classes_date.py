@@ -7,17 +7,11 @@ class Controller_api_hh:
     def __init__(self):
         pass
 
-    # перенести
-    def get_vacancies(self, profeccion):
+    def get_vacancies_info(self, prof):
         pass
 
-    # перенести
-    def get_vacancy_info(self, vacancy):
+    def get_vacancies_info_from_sync(self, prof, sync):
         pass
-
-    def get_skills(self, vacancy_info):
-        pass
-
 
 class Controller_db:
     conn = psycopg2.connect(dbname="hh_backup", user="postgres", password="12345", host="127.0.0.1", port="5432")
@@ -42,23 +36,55 @@ class Controller_db:
         self.conn.close()  # закрываем подключение
 
     def create_row(self, table_name, col_names, col_values):
+        self.conn = psycopg2.connect(dbname="hh_backup", user="postgres", password="12345", host="127.0.0.1", port="5432")
         cursor = self.conn.cursor()
-        sql1 = "INSERT INTO " + table_name + "("
+        sql1 = 'INSERT INTO "' + table_name + '"('
         for index, col_name in enumerate(col_names):
             if index < len(col_names) - 1:
-                sql1 += col_name + " ,"
+                sql1 += '"'+col_name + '" ,'
             elif index == len(col_names) - 1:
-                sql1 += col_name + " "
+                sql1 += '"'+col_name + '" '
         sql1 += ") VALUES( "
         for index, col_value in enumerate(col_values):
             if index < len(col_values) - 1:
-                sql1 += col_value + " ,"
+                if(type(col_value) == type(" ")):
+                    sql1 += " '"+str(col_value) + "' ,"
+                elif (type(col_value) == type(1)):
+                    sql1 += str(col_value) + ' ,'
+
+                elif (type(col_value) == type([" ", " "])):
+                    sql1 += " array [ "
+                    index = 0
+                    for i in col_value:
+                        sql1 += " '"+str(i)+"' "
+                        if index < len(col_value)-1:
+                            sql1 += ","
+                        index += 1
+                    sql1 += "] ,"
+
             elif index == len(col_values) - 1:
-                sql1 += col_value + " "
+                if (type(col_value) == type(" ")):
+                    sql1 += " '"+str(col_value) + "' "
+
+                elif (type(col_value) == type(1)):
+                    sql1 += str(col_value) + ' '
+
+                elif (type(col_value) == type([" ", " "])):
+                    sql1 += " array [ "
+                    index =0
+                    for i in col_value:
+
+                        sql1 += " '"+str(i)+"' "
+                        if index < len(col_value)-1:
+                            sql1 += ","
+                        index += 1
+
+                    sql1 += "]"
+
         sql1 += ");"
+        print(sql1)
         cursor.execute(sql1)
         self.conn.commit()  # реальное выполнение команд sql1
-        cursor.close()  # закрываем курсор
         self.conn.close()  # закрываем подключение
 
     def add_row_to_table(self, table_name, cols, value):
@@ -128,16 +154,55 @@ class Controller_db:
         return data
 
 class Vacancy:
-    def __init__(self):
+    def __init__(self, vacancy_info):
+        # get vacancy_detail from vacancy_info
         pass
+
+    def get_skils(self):
+        pass
+
+    def save_in_db(self):
+        # сохранит (Если нет такого в бд), с FK на профессию
+        pass
+
+    def add_skills(self):
+        # добавить навык, который найден, не в метках
+        pass
+
+class Resume:
+    def __init__(self, resume_info):
+        # get resume_detail from vresume_info
+        pass
+
+    def get_skils(self):
+        pass
+
+    def save_in_db(self):
+        # сохранит (Если нет такого в бд), с FK на профессию
+        pass
+
+    def add_skills(self):
+        # добавить навык, который найден, не в метках
+        pass
+
+
 
 
 class Profession:
     Profession_id = 0
     Profession_Name =""
-    def __init__(self,Profession_id,Profession_Name):
+    Profession_synonyms = []
+    def __init__(self,Profession_id, Profession_Name, Profession_synonyms):
         self.Profession_id = Profession_id
         self.Profession_Name = Profession_Name
+        self.Profession_synonyms = Profession_synonyms
+
+
+class Profession_storage:
+
+    def __init__(self):
+        pass
+
 
 
 class Skill:
@@ -145,7 +210,4 @@ class Skill:
         pass
 
 
-class Resume:
-    def __init__(self):
-        pass
 
